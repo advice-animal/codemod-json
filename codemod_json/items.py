@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import ast
-import enum
-import re
 
 from typing import Any, Iterable, Iterator, Optional, overload, SupportsIndex, Union
 
@@ -155,7 +153,6 @@ class Float(float, Item):
             return t
 
 
-
 class String(str, Item):
     # TODO qs=quoting style somehow
     # TODO decide if the original/stream/annealed default should go in item() instead
@@ -259,9 +256,7 @@ class Array(BlockItem, list[Item]):
         super().__init__(original, stream, annealed)
         if value and not isinstance(value[0], ArrayItem):
             value = [
-                ArrayItem(
-                    x, original=None, stream=None, annealed=True, multiline=True
-                )
+                ArrayItem(x, original=None, stream=None, annealed=True, multiline=True)
                 for x in value
             ]
         list.__init__(self, value)
@@ -287,9 +282,7 @@ class Array(BlockItem, list[Item]):
             for child in node.children[1:-1]
             if child.type not in ("comment", "[", ",")
         ]
-        return cls(
-            value, original=node, stream=stream, annealed=False, multiline=False
-        )
+        return cls(value, original=node, stream=stream, annealed=False, multiline=False)
 
     def __hash__(self) -> int:  # type: ignore[override]
         return hash(tuple(self))
@@ -662,9 +655,7 @@ class ObjectPair(BlockItem):
     def from_json(cls, node: Node, stream: JsonStream) -> "ObjectPair":
         value: Union[Item, Node]
         children = [
-            child
-            for child in node.children
-            if child.type not in ("comment", ":")
+            child for child in node.children if child.type not in ("comment", ":")
         ]
         assert len(children) == 2
         key, value = children
@@ -758,10 +749,9 @@ def item(node: Any, stream: Optional[JsonStream] = None) -> Item:
         #     and t.children[0].children[0].type == "boolean_scalar"
         # ):
         #     return Boolean.from_json(t, stream)
-        if (
-            t.type == "number"
-        ):
-            if b'.' in t.text:  # TODO more accurate float test
+        if t.type == "number":
+            assert isinstance(t.text, bytes)
+            if b"." in t.text:  # TODO more accurate float test
                 return Float.from_json(t, stream)
             else:
                 return Integer.from_json(t, stream)

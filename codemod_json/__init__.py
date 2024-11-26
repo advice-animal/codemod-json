@@ -1,1 +1,3 @@
-from .parser import parse_str
+from .parser import parse, parse_str
+
+__all__ = ["parse_str", "parse"]
