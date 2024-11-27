@@ -52,7 +52,7 @@ class ContainerJsonStream(JsonStream):
 
     def edit(self, item: Item, new_item: Optional[Item]) -> int:
         """
-        Changes `item` (read from yaml) to `new_item` (a boxed python object).
+        Changes `item` (read from json) to `new_item` (a boxed python object).
 
         If `new_item` is None, it is a deletion.
         Otherwise, it is a swap.

@@ -1,4 +1,4 @@
-# codemod-yaml
+# codemod-json
 
 This library makes surgical edits to JSON documents, based on tree-sitter and
 inspired by tomlkit and pyupgrade.  Preserves _all_ whitespace and formatting
