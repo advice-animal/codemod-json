@@ -1,7 +1,9 @@
 from codemod_json import parse_str, item
 
+
 def test_parse():
     assert parse_str("null")._root == None
+
 
 def test_item_methods():
     assert item(None).to_string() == "null"

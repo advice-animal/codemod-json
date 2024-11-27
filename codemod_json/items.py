@@ -187,40 +187,6 @@ class String(str, Item):
 class BlockItem(Item):
     _multiline: bool
 
-    @property
-    def start_byte(self) -> int:
-        assert self._original is not None
-        assert self._stream is not None
-        if not self._multiline:
-            return super().start_byte
-
-        expected_indent = self._original.start_point.column
-        leading_whitespace = self._stream._original_bytes[
-            self._original.start_byte - expected_indent : self._original.start_byte
-        ]
-        p = self._original.start_byte - expected_indent
-        assert p == 0 or self._stream._original_bytes[p - 1 : p] == b"\n"
-        assert (
-            leading_whitespace == b" " * expected_indent
-        )  # can't handle same-line block like "- - a" yet
-        return self._original.start_byte - expected_indent
-
-    @property
-    def end_byte(self) -> int:
-        assert self._original is not None
-        assert self._stream is not None
-        if not self._multiline:
-            return super().end_byte
-
-        text = self._original.text
-        assert isinstance(text, bytes)
-
-        end_byte = self._original.end_byte
-        trailing_newline_pos = self._stream._original_bytes.find(b"\n", end_byte)
-        if trailing_newline_pos != -1:
-            end_byte = trailing_newline_pos + 1
-        return end_byte
-
     def children(self) -> Iterator[Item]:
         raise NotImplementedError
 
@@ -239,7 +205,6 @@ class BlockItem(Item):
 
 
 class Array(BlockItem, list[Item]):
-
     def __init__(
         self,
         value: list[ArrayItem],
@@ -383,7 +348,8 @@ class Array(BlockItem, list[Item]):
             for item in self:
                 buf.append(item.to_string())
                 buf.append(", ")
-            buf.pop()
+            if self:
+                buf.pop()
             buf.append("]")
         else:
             for item in list.__iter__(self):
@@ -630,19 +596,6 @@ class ObjectPair(BlockItem):
         self._style = style or JsonStyle()
         self._last = True  # Object.__init__ will poke the right value in here.
 
-    @property
-    def end_byte(self) -> int:
-        assert self._original is not None
-        assert self._stream is not None
-        if (
-            self._original.next_sibling is not None
-            and self._original.next_sibling.type == ","
-        ):
-            # TODO comments here too?
-            # And whitspace after comma
-            return self._original.next_sibling.end_byte
-        return self._original.end_byte
-
     def _infer_style(self) -> JsonStyle:
         assert self._original is not None
         assert self._stream is not None
@@ -657,9 +610,9 @@ class ObjectPair(BlockItem):
         # 3 because key, ":", value
         if len(self._original.children) >= 3:
             tmp = self._stream._original_bytes[
-                self._original.children[1]
-                .end_byte : self._original.children[2]
-                .start_byte
+                self._original.children[1].end_byte : self._original.children[
+                    2
+                ].start_byte
             ]
             after_colon = tmp.split(b"\n")[0]
             on_next_line = tmp[:-1].count(b"\n") > 0
@@ -752,30 +705,6 @@ def item(node: Any, stream: Optional[JsonStream] = None) -> Item:
         return t
     elif isinstance(t, Node):
         assert stream is not None
-        # if t.type == "flow_node" and t.children[0].type == "flow_sequence":
-        #     return Array.from_json(t, stream)
-        # elif t.type == "block_node" and t.children[0].type == "block_sequence":
-        #     return Array.from_json(t, stream)
-        # elif t.type == "block_node" and t.children[0].type == "block_mapping":
-        #     return Object.from_json(t, stream)
-        # elif (
-        #     t.type == "flow_node"
-        #     and t.children[0].type == "plain_scalar"
-        #     and t.children[0].children[0].type == "string_scalar"
-        # ):
-        #     return String.from_json(t, stream, QuoteStyle.BARE)
-        # elif t.type == "flow_node" and t.children[0].type == "single_quote_scalar":
-        #     return String.from_json(t, stream, QuoteStyle.SINGLE)
-        # elif t.type == "flow_node" and t.children[0].type == "double_quote_scalar":
-        #     return String.from_json(t, stream, QuoteStyle.DOUBLE)
-        # elif t.type == "block_node" and t.children[0].type == "block_scalar":
-        #     return String.from_json(t, stream, QuoteStyle.BLOCK)
-        # elif (
-        #     t.type == "flow_node"
-        #     and t.children[0].type == "plain_scalar"
-        #     and t.children[0].children[0].type == "boolean_scalar"
-        # ):
-        #     return Boolean.from_json(t, stream)
         if t.type == "number":
             assert isinstance(t.text, bytes)
             if b"." in t.text:  # TODO more accurate float test
@@ -809,7 +738,11 @@ def item(node: Any, stream: Optional[JsonStream] = None) -> Item:
             return Object(t, original=None, stream=None, annealed=True, multiline=False)
         elif isinstance(t, (list, tuple)):
             return Array(
-                t, original=None, stream=None, annealed=True, multiline=False  # type: ignore[arg-type]
+                list(t),
+                original=None,
+                stream=None,
+                annealed=True,
+                multiline=False,
             )
         else:
             breakpoint()
