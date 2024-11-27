@@ -80,7 +80,7 @@ class ContainerJsonStream(JsonStream):
         return cookie
 
     def _remove_wholly_contained_edits(self, start: int, end: int) -> None:
-        # print(self._edits)
+        # print(start, end, self._edits)
         overlapped_cookies: set[int] = set()
         for k, v in self._edits.items():
             if v.start >= start and v.end <= end:
@@ -94,7 +94,7 @@ class ContainerJsonStream(JsonStream):
         tmp = self._original_bytes
 
         for edit in sorted(self._edits.values(), reverse=True):
-            if edit.item:
+            if edit.item is not None:
                 new_bytes = edit.item.to_string().encode("utf-8")
             else:
                 new_bytes = b""

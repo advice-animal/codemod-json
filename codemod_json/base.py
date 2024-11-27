@@ -64,17 +64,23 @@ class Item(abc.ABC):
 
     @property
     def start_byte(self) -> int:
-        if self._annealed:
-            raise RuntimeError("start_byte of annealed item should not be accessed")
         assert self._original is not None
         return self._original.start_byte
 
     @property
     def end_byte(self) -> int:
-        if self._annealed:
-            raise RuntimeError("end_byte of annealed item should not be accessed")
         assert self._original is not None
-        return self._original.end_byte
+        assert self._stream is not None
+        t = self._original
+        while t.next_sibling and t.next_sibling.type in (",", "comment"):
+            t = t.next_sibling
+
+        e = t.end_byte
+        while self._stream._original_bytes[e : e + 1] in (b" ", b"\n"):
+            e += 1
+
+        return e
+
 
     @classmethod
     @abc.abstractmethod
