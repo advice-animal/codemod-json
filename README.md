@@ -45,5 +45,5 @@ version changes.
 
 # License
 
-codemod-yaml is copyright [Tim Hatch](https://timhatch.com/), and licensed under
+codemod-json is copyright [Tim Hatch](https://timhatch.com/), and licensed under
 the MIT license.  See the `LICENSE` file for details.
