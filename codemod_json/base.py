@@ -24,6 +24,10 @@ class JsonStream(abc.ABC):
 
     # Forwarding methods
 
+    def __contains__(self, value: Any) -> bool:
+        assert isinstance(self._root, (list, dict))
+        return value in self._root
+
     def __getitem__(self, key: Any) -> Any:
         assert isinstance(self._root, (list, dict))
         return self._root[key]
@@ -80,7 +84,6 @@ class Item(abc.ABC):
             e += 1
 
         return e
-
 
     @classmethod
     @abc.abstractmethod

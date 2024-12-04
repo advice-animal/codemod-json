@@ -196,10 +196,10 @@ class BlockItem(Item):
     def cascade_style(self, style: JsonStyle) -> None:
         assert hasattr(self, "_style")
         self._style = style
-        print("Set", type(self), style.base_indent)
+        # print("Set", type(self), style.base_indent)
         child_style = self.mod_style_for_children()
         for f in self.children():
-            print("  ", type(f))
+            # print("  ", type(f))
             if isinstance(f, BlockItem):
                 f.cascade_style(child_style)
 
@@ -264,6 +264,12 @@ class Array(BlockItem, list[Item]):
 
     def __repr__(self) -> str:
         return "[%s]" % (", ".join(repr(i) for i in self))
+
+    def __contains__(self, value: Any) -> bool:
+        for x in self:
+            if x == value:
+                return True
+        return False
 
     @overload
     def __getitem__(self, index: SupportsIndex, /) -> Item: ...
@@ -352,9 +358,12 @@ class Array(BlockItem, list[Item]):
                 buf.pop()
             buf.append("]")
         else:
-            for item in list.__iter__(self):
-                s = item.to_string()
-                buf.append(s)
+            buf.append("[")
+            for item in self:
+                buf.append(item.to_string())
+                buf.append(",\n")
+            buf.pop()
+            buf.append("]")
         if self._multiline and buf[-1][-1:] != "\n":
             buf.append("\n")
         return "".join(buf)
