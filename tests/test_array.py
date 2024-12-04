@@ -48,3 +48,9 @@ def test_array_del_one_at_a_time():
     while doc._root:
         del doc._root[0]
     assert doc.text.decode("utf-8") == "[]"
+
+
+def test_contains():
+    doc = parse_str('["abc"]')
+    assert "abc" in doc
+    assert "def" not in doc
