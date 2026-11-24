@@ -36,7 +36,8 @@ format:
 lint:
 	ruff check $(SOURCES)
 	python -m checkdeps --allow-names codemod_json codemod_json
-	mypy --strict --install-types --non-interactive codemod_json
+	mypy --strict --install-types --non-interactive codemod_json tests/test_typing.py
+	ty check codemod_json tests/test_typing.py
 
 .PHONY: release
 release:
