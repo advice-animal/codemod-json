@@ -44,9 +44,8 @@ missing attribute on a parser's declared return type.
 
 # Version Compat
 
-Usage of this library should work back to 3.9 (because of the tree-sitter dep),
-but development (and mypy compatibility) only on 3.10-3.12.  Linting requires
-3.12+ for full fidelity.
+Usage of this library is tested back to 3.10 but may work on 3.9 (because of the tree-sitter dep).
+Linting requires 3.12+ for full fidelity.
 
 # Versioning
 
