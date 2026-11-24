@@ -31,6 +31,17 @@ somepath.write_bytes(stream.text)
 }
 ```
 
+# Type Checking
+
+`parse(bytes)` and `parse_str(str)` return a `ContainerJsonStream`. Its `.text`
+property returns UTF-8 `bytes` with pending edits applied, ready to pass to
+`Path.write_bytes`. The `JsonStream` base interface also declares `.text`.
+
+Run `make lint` after installing `.[dev,test]` to check the package with strict
+mypy and ty. Both also check `tests/test_typing.py`, which exercises the README
+example as caller code: checking only the implementation would not catch a
+missing attribute on a parser's declared return type.
+
 # Version Compat
 
 Usage of this library should work back to 3.9 (because of the tree-sitter dep),

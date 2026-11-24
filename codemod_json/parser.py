@@ -113,11 +113,11 @@ class ContainerJsonStream(JsonStream):
         return tmp
 
 
-def parse_str(data: str) -> JsonStream:
+def parse_str(data: str) -> ContainerJsonStream:
     original_bytes = data.encode("utf-8")
     return parse(original_bytes)
 
 
-def parse(data: bytes) -> JsonStream:
+def parse(data: bytes) -> ContainerJsonStream:
     # print(type(data))
     return ContainerJsonStream(tree=parser.parse(data), original_bytes=data)

@@ -22,6 +22,12 @@ class JsonStream(abc.ABC):
     def edit(self, item: Item, new_item: Optional[Item]) -> int:
         pass
 
+    @property
+    @abc.abstractmethod
+    def text(self) -> bytes:
+        """Return the document as UTF-8 bytes with pending edits applied."""
+        pass
+
     # Forwarding methods
 
     def __contains__(self, value: Any) -> bool:

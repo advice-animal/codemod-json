@@ -540,7 +540,8 @@ class Object(dict[Item, Item], BlockItem):
 
     def __setitem__(self, key: Any, value: Any) -> None:
         key = item(key)
-        pair: Optional[ObjectPair] = self.get(key, None)  # type: ignore[assignment]
+        pair = self.get(key, None)
+        assert pair is None or isinstance(pair, ObjectPair)
         if pair is not None and self._stream and not self._annealed:
             # TODO code around here is error prone, because if we anneal just
             # the pair it won't get the right `last` param in to_string; we
